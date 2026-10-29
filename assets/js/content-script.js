@@ -16,14 +16,17 @@ function createSecurityOverlay(message) {
     overlayDiv.className = message.className;
   }
   
-  let imgSrc = chrome.runtime.getURL('assets/images/sign.png');
+  // Only verified or dangerous gateways get a sign
+  let imgSrc;
   if (message.icon && message.icon.includes('icon_danger.png')) {
     imgSrc = chrome.runtime.getURL('assets/images/icon_danger.png');
   } else if (message.icon && message.icon.includes('icon_ok.png')) {
     imgSrc = chrome.runtime.getURL('assets/images/sign.png');
+  } else {
+    return;
   }
 
-  overlayDiv.innerHTML = '<a href="https://motmaenbash.ir/" target="_blank"><img title="این درگاه پرداخت معتبر و امن است" id="motmaenBashCornerSignLogo" src="' + chrome.runtime.getURL('assets/images/sign.png') + '"/></a>'
+  overlayDiv.innerHTML = '<a href="https://motmaenbash.ir/" target="_blank"><img title="' + (message.title || '') + '" id="motmaenBashCornerSignLogo" src="' + imgSrc + '"/></a>'
   
   document.body.insertBefore(overlayDiv, document.body.firstChild);
 }
@@ -31,16 +34,12 @@ function createSecurityOverlay(message) {
 const url = new URL(location.href);
 if (url.hostname.match(/\.shaparak\.ir$/i)) {
   chrome.runtime.sendMessage({ action: 'checkSecurity', url: location.href }, (response) => {
+    // Without an answer no sign is shown; the background script also
+    // sends the result once the page has loaded
+    if (chrome.runtime.lastError) return;
+
     if (response && response.message) {
       createSecurityOverlay(response.message);
-    } else {
-      // Default secure for shaparak.ir domains with HTTPS
-      if (url.protocol === 'https:') {
-        createSecurityOverlay({
-          description: 'این درگاه پرداخت معتبر و امن است',
-          icon: 'assets/images/icon_ok.png'
-        });
-      }
     }
   });
 }

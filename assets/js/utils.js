@@ -62,9 +62,10 @@ export function getSecurityMessage(result) {
   }
   
   if (result.secure === true) {
+    // Chrome extensions can't see the certificate, so only the address can be vouched for
     return {
-      title: 'درگاه پرداخت امن، مطمئن باش',
-      text: 'این درگاه پرداخت معتبر و امن است',
+      title: 'آدرس درگاه پرداخت شاپرک، مطمئن باش',
+      text: 'آدرس این صفحه متعلق به درگاه‌های پرداخت شاپرک است. کروم اجازه‌ی بررسی گواهی امنیتی را به افزونه‌ها نمی‌دهد؛ اگر گواهی ریشه‌ای روی دستگاه خود نصب کرده‌اید، در وارد کردن اطلاعات کارت احتیاط کنید',
       icon: '/assets/images/icon_ok.png',
       className: 'status_title_ok'
     };
@@ -106,7 +107,7 @@ export function getSecurityMessage(result) {
   } else {
     return {
       title: 'این صفحه یک درگاه پرداخت نیست',
-      text: 'تنها در صورت مشاهده تیک سبز رنگ، مطمئن باش که یک درگاه امن و معتبر است',
+      text: 'تنها در صورت مشاهده تیک سبز رنگ، مطمئن باش که آدرس صفحه متعلق به درگاه‌های پرداخت شاپرک است',
       icon: '/assets/images/icon_128.png',
       className: 'status_title_nok'
     };

@@ -8,14 +8,15 @@ class BackgroundHandler {
   constructor() {
     this.dataManager = new DataManager();
     this.initialized = false;
+
+    // Registered right away so the service worker can answer after it restarts
+    this.setupMessageListeners();
   }
 
   // Initialize the handler
   async init() {
     await this.dataManager.init();
     this.initialized = true;
-    
-    this.setupMessageListeners();
   }
 
   // Set up message listeners for communication with content scripts and popup

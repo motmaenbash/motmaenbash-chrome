@@ -1,7 +1,16 @@
 // Popup script for MotmaenBash extension
 // Handles displaying security information in the popup
 
-import { getTypeName, getLevelName } from './utils.js';
+import { getTypeName, getLevelName, getSecurityMessage } from './utils.js';
+
+// Show the explanation that goes with the status below its title
+function showStatusNote(statusTitle, text) {
+  const note = document.createElement('div');
+  note.id = 'status_note';
+  note.className = 'status_note';
+  note.textContent = text;
+  statusTitle.parentNode.insertBefore(note, statusTitle.nextSibling);
+}
 
 // Function to update popup content based on current tab or stored security data
 function updatePopupContent() {
@@ -9,11 +18,16 @@ function updatePopupContent() {
   const statusTitle = document.getElementById('status_title');
   const detailsContainer = document.getElementById('security_details') || document.createElement('div');
   detailsContainer.id = 'security_details';
-  
+
   // Clear previous content
   detailsContainer.innerHTML = '';
   if (detailsContainer.parentNode) {
     detailsContainer.parentNode.removeChild(detailsContainer);
+  }
+
+  const previousNote = document.getElementById('status_note');
+  if (previousNote) {
+    previousNote.remove();
   }
   
   // Get security information from storage
@@ -32,7 +46,11 @@ function updatePopupContent() {
           statusIcon.src = data.message.icon;
           statusTitle.className = data.message.className || 'status_title_nok';
           statusTitle.innerHTML = data.message.title;
-          
+
+          if (data.message.text && !(data.securityResult && data.securityResult.secure === false)) {
+            showStatusNote(statusTitle, data.message.text);
+          }
+
           if (data.securityResult && data.securityResult.secure === false) {
             const typeName = getTypeName(data.securityResult.type);
             const levelName = getLevelName(data.securityResult.level);
@@ -58,16 +76,13 @@ function updatePopupContent() {
         } else {
           // If no matching data, show default content based on current URL
           const url = new URL(currentTabUrl);
-          
-          if (url.hostname.match(/\.shaparak\.ir$/i) && url.protocol === 'https:') {
-            statusTitle.className = 'status_title_ok';
-            statusTitle.innerHTML = 'درگاه پرداخت امن، مطمئن باش';
-            statusIcon.src = 'assets/images/icon_ok.png';
-          } else {
-            statusTitle.className = 'status_title_nok';
-            statusTitle.innerHTML = 'این صفحه یک درگاه پرداخت نیست. تنها در صورت مشاهده تیک سبز رنگ، مطمئن باش که یک درگاه امن و معتبر است.';
-            statusIcon.src = 'assets/images/icon_128.png';
-          }
+          const isGateway = url.hostname.match(/\.shaparak\.ir$/i) && url.protocol === 'https:';
+          const message = getSecurityMessage({ secure: isGateway ? true : null });
+
+          statusTitle.className = message.className;
+          statusTitle.innerHTML = message.title;
+          statusIcon.src = message.icon;
+          showStatusNote(statusTitle, message.text);
         }
       }
     });

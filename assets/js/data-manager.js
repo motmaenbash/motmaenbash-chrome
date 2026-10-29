@@ -164,11 +164,8 @@ class DataManager {
       if (!this.initialized) await this.init();
       
       // console.log('Updating database from:', this.dataUrl);
-      
-      // Clear old database before update
-      await this.db.clearAll();
-      // console.log('Database cleared, fetching new data...');
-      
+
+      // processData() replaces the old data, so it is kept if the download fails
       const data = await this.fetchData();
       // console.log('Data fetched successfully, processing...');
       

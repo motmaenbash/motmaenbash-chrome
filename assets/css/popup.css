@@ -112,6 +112,14 @@ body {
   line-height: 28px;
 }
 
+.status_note {
+  margin: -8px 0 16px;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: #616161;
+  text-align: center;
+}
+
 /* Security details styling */
 #security_details {
   background-color: #fff8e1;
